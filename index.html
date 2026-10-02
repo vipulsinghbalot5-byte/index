@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Password Saver</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+}
+
+.container {
+    width: 90%;
+    max-width: 450px;
+    background: #1e293b;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px #0008;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 0;
+}
+
+.subtitle {
+    text-align: center;
+    color: #94a3b8;
+}
+
+label {
+    display: block;
+    margin-top: 18px;
+    margin-bottom: 7px;
+}
+
+input {
+    width: 100%;
+    padding: 13px;
+    border-radius: 8px;
+    border: 1px solid #475569;
+    background: #0f172a;
+    color: white;
+    font-size: 15px;
+}
+
+button {
+    border: none;
+    border-radius: 8px;
+    padding: 12px 16px;
+    cursor: pointer;
+    color: white;
+    background: #2563eb;
+    font-size: 15px;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+.save-btn {
+    width: 100%;
+    margin-top: 22px;
+}
+
+.saved {
+    margin-top: 25px;
+    padding: 20px;
+    border-radius: 10px;
+    background: #0f172a;
+    display: none;
+}
+
+.row {
+    margin: 12px 0;
+    word-break: break-word;
+}
+
+.password {
+    font-family: monospace;
+    letter-spacing: 2px;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+}
+
+.delete {
+    background: #dc2626;
+}
+
+.delete:hover {
+    background: #b91c1c;
+}
+
+.copy {
+    background: #059669;
+}
+
+.copy:hover {
+    background: #047857;
+}
+
+.message {
+    text-align: center;
+    margin-top: 15px;
+    color: #4ade80;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🔐 My Password Saver</h1>
+
+    <p class="subtitle">
+        Save a username and password in this browser
+    </p>
+
+    <label for="username">
+        Username
+    </label>
+
+    <input
+        id="username"
+        type="text"
+        placeholder="Enter username"
+    >
+
+    <label for="password">
+        Password
+    </label>
+
+    <input
+        id="password"
+        type="password"
+        placeholder="Enter password"
+    >
+
+    <button
+        class="save-btn"
+        onclick="saveLogin()"
+    >
+        Save Login
+    </button>
+
+    <div
+        id="message"
+        class="message"
+    ></div>
+
+
+    <div
+        id="saved"
+        class="saved"
+    >
+
+        <h2>Saved Login</h2>
+
+        <div class="row">
+            <strong>Username:</strong>
+
+            <span id="savedUsername"></span>
+        </div>
+
+        <div class="row">
+            <strong>Password:</strong>
+
+            <span
+                id="savedPassword"
+                class="password"
+            >
+                ••••••••••
+            </span>
+        </div>
+
+        <div class="actions">
+
+            <button
+                onclick="togglePassword()"
+            >
+                Show / Hide
+            </button>
+
+            <button
+                class="copy"
+                onclick="copyPassword()"
+            >
+                Copy Password
+            </button>
+
+            <button
+                class="delete"
+                onclick="deleteLogin()"
+            >
+                Delete
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let passwordVisible = false;
+
+
+/* Save username and password */
+
+function saveLogin() {
+
+    const username =
+        document
+            .getElementById("username")
+            .value
+            .trim();
+
+    const password =
+        document
+            .getElementById("password")
+            .value;
+
+
+    if (!username || !password) {
+
+        showMessage(
+            "Please enter both username and password.",
+            true
+        );
+
+        return;
+    }
+
+
+    const loginData = {
+
+        username: username,
+
+        password: password
+
+    };
+
+
+    localStorage.setItem(
+        "mySavedLogin",
+        JSON.stringify(loginData)
+    );
+
+
+    showMessage(
+        "Login saved successfully!"
+    );
+
+
+    document
+        .getElementById("password")
+        .value = "";
+
+
+    loadLogin();
+}
+
+
+/* Load saved login */
+
+function loadLogin() {
+
+    const saved =
+        localStorage.getItem(
+            "mySavedLogin"
+        );
+
+
+    if (!saved) {
+
+        document
+            .getElementById("saved")
+            .style.display = "none";
+
+        return;
+    }
+
+
+    const data =
+        JSON.parse(saved);
+
+
+    document
+        .getElementById("savedUsername")
+        .textContent =
+        data.username;
+
+
+    document
+        .getElementById("savedPassword")
+        .textContent =
+        "••••••••••";
+
+
+    passwordVisible = false;
+
+
+    document
+        .getElementById("saved")
+        .style.display = "block";
+}
+
+
+/* Show / hide password */
+
+function togglePassword() {
+
+    const saved =
+        localStorage.getItem(
+            "mySavedLogin"
+        );
+
+
+    if (!saved) return;
+
+
+    const data =
+        JSON.parse(saved);
+
+
+    const element =
+        document.getElementById(
+            "savedPassword"
+        );
+
+
+    passwordVisible =
+        !passwordVisible;
+
+
+    if (passwordVisible) {
+
+        element.textContent =
+            data.password;
+
+    } else {
+
+        element.textContent =
+            "••••••••••";
+
+    }
+}
+
+
+/* Copy password */
+
+async function copyPassword() {
+
+    const saved =
+        localStorage.getItem(
+            "mySavedLogin"
+        );
+
+
+    if (!saved) return;
+
+
+    const data =
+        JSON.parse(saved);
+
+
+    await navigator.clipboard.writeText(
+        data.password
+    );
+
+
+    showMessage(
+        "Password copied!"
+    );
+}
+
+
+/* Delete login */
+
+function deleteLogin() {
+
+    const confirmDelete =
+        confirm(
+            "Delete the saved username and password?"
+        );
+
+
+    if (!confirmDelete) return;
+
+
+    localStorage.removeItem(
+        "mySavedLogin"
+    );
+
+
+    document
+        .getElementById("saved")
+        .style.display = "none";
+
+
+    showMessage(
+        "Saved login deleted."
+    );
+}
+
+
+/* Message */
+
+function showMessage(
+    text,
+    error = false
+) {
+
+    const message =
+        document.getElementById(
+            "message"
+        );
+
+
+    message.textContent =
+        text;
+
+
+    message.style.color =
+        error
+        ? "#f87171"
+        : "#4ade80";
+
+
+    setTimeout(
+        () => {
+            message.textContent = "";
+        },
+        2500
+    );
+}
+
+
+/* Load data when page opens */
+
+window.addEventListener(
+    "DOMContentLoaded",
+    loadLogin
+);
+
+</script>
+
+</body>
+</html>
